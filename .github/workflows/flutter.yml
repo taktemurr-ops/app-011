@@ -1,0 +1,45 @@
+name: APP-011 Tasarruf360 Flutter verification
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Flutter 3.38.0
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.0'
+          channel: stable
+          cache: true
+      - name: Generate Android and iOS platform scaffolding
+        run: flutter create --platforms=android,ios --project-name tasarruf_360 .
+      - name: Resolve dependencies
+        run: flutter pub get
+      - name: Format sources
+        run: dart format lib test
+      - name: Static Flutter analysis
+        run: flutter analyze --no-fatal-infos
+      - name: Flutter tests
+        run: flutter test --coverage
+      - name: Build Android debug APK
+        run: flutter build apk --debug
+      - name: Upload Android build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-011-tasarruf360-debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14

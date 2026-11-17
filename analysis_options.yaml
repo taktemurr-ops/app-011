@@ -1,0 +1,7 @@
+include: package:flutter_lints/flutter.yaml
+analyzer:
+  errors:
+    undefined_identifier: error
+    undefined_getter: error
+    undefined_method: error
+    invalid_assignment: error
